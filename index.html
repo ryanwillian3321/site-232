@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Mundo 3D</title>
+  <title>Mundo 3D com Árvore e Chão</title>
   <style>
     body {
       margin: 0;
@@ -15,7 +15,7 @@
 <body>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script>
-    let scene, camera, renderer, controls;
+    let scene, camera, renderer, cube, tree, ground;
 
     function init() {
       scene = new THREE.Scene();
@@ -25,16 +25,41 @@
       renderer.setSize(window.innerWidth, window.innerHeight);
       document.body.appendChild(renderer.domElement);
 
-      controls = new THREE.OrbitControls(camera, renderer.domElement);
+      cube = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshBasicMaterial({ color: 0x00ff00 }));
+      scene.add(cube);
+
+      tree = new THREE.Group();
+      const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 1, 16), new THREE.MeshBasicMaterial({ color: 0x8B4513 }));
+      const leaves = new THREE.Mesh(new THREE.SphereGeometry(0.5, 16, 16), new THREE.MeshBasicMaterial({ color: 0x00ff00 }));
+      leaves.position.y = 0.8;
+      tree.add(trunk);
+      tree.add(leaves);
+      tree.position.set(2, 0.5, -3);
+      scene.add(tree);
+
+      const blockSize = 1;
+      const numRows = 5;
+      const numCols = 7;
+      ground = new THREE.Group();
+      for (let row = 0; row < numRows; row++) {
+        for (let col = 0; col < numCols; col++) {
+          const block = new THREE.Mesh(new THREE.BoxGeometry(blockSize, blockSize, blockSize), new THREE.MeshBasicMaterial({ color: 0x808080 }));
+          block.position.set(col - numCols / 2, -0.5, row - numRows / 2);
+          ground.add(block);
+        }
+      }
+      scene.add(ground);
 
       camera.position.set(0, 5, 10);
-      controls.update();
 
       window.addEventListener("resize", onWindowResize, false);
     }
 
     function animate() {
       requestAnimationFrame(animate);
+
+      cube.rotation.x += 0.01;
+      cube.rotation.y += 0.01;
 
       renderer.render(scene, camera);
     }
