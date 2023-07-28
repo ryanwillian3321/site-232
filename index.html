@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Mundo 3D com Árvore e Chão</title>
+  <title>Mundo 3D com Movimento e Visão em Primeira Pessoa</title>
   <style>
     body {
       margin: 0;
@@ -16,6 +16,11 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script>
     let scene, camera, renderer, cube, tree, ground;
+    let moveForward = false;
+    let moveBackward = false;
+    let moveLeft = false;
+    let moveRight = false;
+    let playerSpeed = 0.1;
 
     function init() {
       scene = new THREE.Scene();
@@ -25,7 +30,7 @@
       renderer.setSize(window.innerWidth, window.innerHeight);
       document.body.appendChild(renderer.domElement);
 
-      cube = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshBasicMaterial({ color: 0x00ff00 }));
+      cube = new THREE.Mesh(new THREE.BoxGeometry(1, 2, 1), new THREE.MeshBasicMaterial({ color: 0x00ff00 }));
       scene.add(cube);
 
       tree = new THREE.Group();
@@ -34,7 +39,7 @@
       leaves.position.y = 0.8;
       tree.add(trunk);
       tree.add(leaves);
-      tree.position.set(2, 0.5, -3);
+      tree.position.set(2, 0, -3);
       scene.add(tree);
 
       const blockSize = 1;
@@ -50,16 +55,67 @@
       }
       scene.add(ground);
 
-      camera.position.set(0, 5, 10);
+      camera.position.set(0, 1, 2);
+      camera.lookAt(cube.position);
 
       window.addEventListener("resize", onWindowResize, false);
+      document.addEventListener("keydown", onKeyDown, false);
+      document.addEventListener("keyup", onKeyUp, false);
+    }
+
+    function onKeyDown(event) {
+      switch (event.key) {
+        case "ArrowUp":
+          moveForward = true;
+          break;
+        case "ArrowDown":
+          moveBackward = true;
+          break;
+        case "ArrowLeft":
+          moveLeft = true;
+          break;
+        case "ArrowRight":
+          moveRight = true;
+          break;
+      }
+    }
+
+    function onKeyUp(event) {
+      switch (event.key) {
+        case "ArrowUp":
+          moveForward = false;
+          break;
+        case "ArrowDown":
+          moveBackward = false;
+          break;
+        case "ArrowLeft":
+          moveLeft = false;
+          break;
+        case "ArrowRight":
+          moveRight = false;
+          break;
+      }
+    }
+
+    function updatePlayerPosition() {
+      if (moveForward) {
+        cube.translateZ(-playerSpeed);
+      }
+      if (moveBackward) {
+        cube.translateZ(playerSpeed);
+      }
+      if (moveLeft) {
+        cube.translateX(-playerSpeed);
+      }
+      if (moveRight) {
+        cube.translateX(playerSpeed);
+      }
     }
 
     function animate() {
       requestAnimationFrame(animate);
 
-      cube.rotation.x += 0.01;
-      cube.rotation.y += 0.01;
+      updatePlayerPosition();
 
       renderer.render(scene, camera);
     }
@@ -75,5 +131,6 @@
   </script>
 </body>
 </html>
+
 
 
